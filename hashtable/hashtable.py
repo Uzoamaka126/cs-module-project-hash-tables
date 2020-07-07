@@ -19,10 +19,11 @@ class HashTable:
 
     Implement this.
     """
-
     def __init__(self, capacity):
         # Your code here
-
+        if capacity >= MIN_CAPACITY:
+            self.capacity = capacity
+        print("minimum capacity should be 8")
 
     def get_num_slots(self):
         """
@@ -35,7 +36,8 @@ class HashTable:
         Implement this.
         """
         # Your code here
-
+        numOfSlots = len(self.capacity)
+        return numOfSlots
 
     def get_load_factor(self):
         """
@@ -70,6 +72,7 @@ class HashTable:
         Take an arbitrary key and return a valid integer index
         between within the storage capacity of the hash table.
         """
+        # returns the hash value for a key
         #return self.fnv1(key) % self.capacity
         return self.djb2(key) % self.capacity
 
@@ -82,6 +85,10 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        # convert the key to an integer/hash value
+        slot = self.hash_index(key)
+        # store the value with its given key
+        self.capacity[slot] = value
 
 
     def delete(self, key):
@@ -93,7 +100,14 @@ class HashTable:
         Implement this.
         """
         # Your code here
-
+        # obtain the hash value
+        slot = self.hash_index(key)
+        if self.capacity[slot] is None:
+            print("key not found")
+            return
+        # otherwise proceed with the deletion
+        self.capacity[slot] == None
+        
 
     def get(self, key):
         """
