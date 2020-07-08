@@ -37,7 +37,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        return len(self.capacity)
+        return len(self.storage)
 
     def get_load_factor(self):
         """
@@ -91,11 +91,20 @@ class HashTable:
         # check if the index is taken
         # if yes, create a linkedlist to store the key as a pair
         slot = self.hash_index(key)
-        if not self.capacity[slot]:
-
+        if not self.storage[slot]:
+            self.storage[slot] = HashTableEntry(key, value)
         # store the value with its given key
-        self.capacity[slot] = value
-
+        else:
+            current_bucket = self.storage[slot]
+            while current_bucket:
+                if current_bucket.key == key:
+                    current_bucket.value = value
+                    break
+                elif current_bucket.next:
+                    current_bucket = current_bucket.next
+                else:
+                    break
+            current_bucket.next = HashTableEntry(key, value)
 
     def delete(self, key):
         """
@@ -152,7 +161,7 @@ class HashTable:
         # Your code here
         # the new storage is gotten by increasing the size by 2
         new_storage = HashTable(self.capacity * 2)
-        
+
 
 
 
