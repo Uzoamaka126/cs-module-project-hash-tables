@@ -21,9 +21,10 @@ class HashTable:
     """
     def __init__(self, capacity):
         # Your code here
-        if capacity >= MIN_CAPACITY:
-            self.capacity = capacity
-        print("minimum capacity should be 8")
+        # if capacity >= MIN_CAPACITY:
+        #     # then initialize an empty list with None values
+        self.capacity = capacity
+        self.storage = [None] * capacity
 
     def get_num_slots(self):
         """
@@ -36,8 +37,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        numOfSlots = len(self.capacity)
-        return numOfSlots
+        return len(self.capacity)
 
     def get_load_factor(self):
         """
@@ -65,6 +65,7 @@ class HashTable:
         Implement this, and/or FNV-1.
         """
         # Your code here
+        
 
 
     def hash_index(self, key):
@@ -74,7 +75,8 @@ class HashTable:
         """
         # returns the hash value for a key
         #return self.fnv1(key) % self.capacity
-        return self.djb2(key) % self.capacity
+        # takes in a key which is also a string
+        return self.djb2(key) % self.get_num_slots()
 
     def put(self, key, value):
         """
@@ -86,7 +88,11 @@ class HashTable:
         """
         # Your code here
         # convert the key to an integer/hash value
+        # check if the index is taken
+        # if yes, create a linkedlist to store the key as a pair
         slot = self.hash_index(key)
+        if not self.capacity[slot]:
+
         # store the value with its given key
         self.capacity[slot] = value
 
@@ -118,6 +124,22 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        # get the index of the particular key
+        selected_key = self.hash_index(key)
+
+        if not self.storage[selected_key]:
+            return None
+        # otherwise get the current value
+        while self.storage[selected_key] is not None:
+            if self.storage[selected_key].key == key:
+                return self.storage[selected_key].value
+            # go to the next index by increasing it by 1
+            elif self.storage[selected_key].next != None:
+                self.storage[selected_key] = self.storage[selected_key].next
+            else:
+                return None
+
+        return None
 
 
     def resize(self, new_capacity):
@@ -128,6 +150,9 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        # the new storage is gotten by increasing the size by 2
+        new_storage = HashTable(self.capacity * 2)
+        
 
 
 
