@@ -2,6 +2,7 @@ class HashTableEntry:
     """
     Linked List hash table key/value pair
     """
+
     def __init__(self, key, value):
         self.key = key
         self.value = value
@@ -19,6 +20,7 @@ class HashTable:
 
     Implement this.
     """
+
     def __init__(self, capacity):
         # Your code here
         # if capacity >= MIN_CAPACITY:
@@ -47,7 +49,6 @@ class HashTable:
         """
         # Your code here
 
-
     def fnv1(self, key):
         """
         FNV-1 Hash, 64-bit
@@ -57,7 +58,6 @@ class HashTable:
 
         # Your code here
 
-
     def djb2(self, key):
         """
         DJB2 hash, 32-bit
@@ -65,8 +65,10 @@ class HashTable:
         Implement this, and/or FNV-1.
         """
         # Your code here
-        
-
+        hash = 5381
+        for c in key:
+            hash = (hash * 33) + ord(c)
+        return hash
 
     def hash_index(self, key):
         """
@@ -74,7 +76,7 @@ class HashTable:
         between within the storage capacity of the hash table.
         """
         # returns the hash value for a key
-        #return self.fnv1(key) % self.capacity
+        # return self.fnv1(key) % self.capacity
         # takes in a key which is also a string
         return self.djb2(key) % self.get_num_slots()
 
@@ -122,7 +124,6 @@ class HashTable:
             return
         # otherwise proceed with the deletion
         self.capacity[slot] == None
-        
 
     def get(self, key):
         """
@@ -150,7 +151,6 @@ class HashTable:
 
         return None
 
-
     def resize(self, new_capacity):
         """
         Changes the capacity of the hash table and
@@ -161,8 +161,6 @@ class HashTable:
         # Your code here
         # the new storage is gotten by increasing the size by 2
         new_storage = HashTable(self.capacity * 2)
-
-
 
 
 if __name__ == "__main__":
