@@ -2,15 +2,14 @@ class HashTableEntry:
     """
     Linked List hash table key/value pair
     """
+
     def __init__(self, key, value):
         self.key = key
         self.value = value
         self.next = None
 
-
 # Hash table can't have fewer than this many slots
 MIN_CAPACITY = 8
-
 
 class HashTable:
     """
@@ -20,9 +19,12 @@ class HashTable:
     Implement this.
     """
 
-    def __init__(self, capacity):
+    def __init__(self, capacity = MIN_CAPACITY):
         # Your code here
-
+        self.size = int(capacity)
+        self.storage = [None] * max(capacity, MIN_CAPACITY)
+        self.full_slots = 0
+        self.resizing = false
 
     def get_num_slots(self):
         """
@@ -35,7 +37,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
-
+        return len(self.storage)
 
     def get_load_factor(self):
         """
@@ -44,7 +46,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
-
+        return self.full_slots % self.size
 
     def fnv1(self, key):
         """
@@ -55,7 +57,6 @@ class HashTable:
 
         # Your code here
 
-
     def djb2(self, key):
         """
         DJB2 hash, 32-bit
@@ -63,37 +64,81 @@ class HashTable:
         Implement this, and/or FNV-1.
         """
         # Your code here
-
+        hash = 5381
+        for c in key:
+            hash = (hash * 33) + ord(c)
+        return hash
 
     def hash_index(self, key):
         """
         Take an arbitrary key and return a valid integer index
         between within the storage capacity of the hash table.
         """
-        #return self.fnv1(key) % self.capacity
-        return self.djb2(key) % self.capacity
+        # returns the hash value for a key
+        # return self.fnv1(key) % self.capacity
+        # takes in a key which is also a string
+        h = self.djb2(key)
+        return h % self.get_num_slots()
 
     def put(self, key, value):
         """
         Store the value with the given key.
-
         Hash collisions should be handled with Linked List Chaining.
-
         Implement this.
         """
         # Your code here
-
+        # convert the key to an integer/hash value
+        # check if the index is taken
+        # if yes, create a linkedlist to store the key as a pair
+        key_index = self.hash_index(key)
+        print(key, value, key_index)
+        new_node = HashTableEntry(key, value)
+        current_node = self.storage[key_index]
+        if current_node is None: # which means that the slot is empty right?
+        # store the value with its given key
+           self.storage[key_index] = new_node
+           self.full_slots += 1
+        else:
+            while current_node.next is not None and current_node.key is not key:
+                current_node = current_node.next
+            if current_node.key == key:
+                current_node.value = value
+            else:
+                current_node.next = new_node
 
     def delete(self, key):
         """
         Remove the value stored with the given key.
-
         Print a warning if the key is not found.
-
         Implement this.
         """
         # Your code here
+        # obtain the hash value
+        key_index = self.hash_index(key)
+        current_node = self.storage[key_index]
+        # otherwise proceed with the deletion
 
+        prev_node = None
+        while current_node is not None and current_node.key is not key:
+            # continue going forward
+            prev_node = current_node
+            current_node = current_node.next
+
+        if current_node is None:
+            print("key not found")
+            return None
+        else:
+            deleted_node = current_node.value
+            # if the key is the only node in the list
+            if prev_node is None:
+                self.storage[key_index] = current_node.next
+                if current_node.next is None:
+                    
+            # 1 => 2 => 3 
+            # currently pointing to node 2, we want it to point to node 3
+            else: prev_node.next = prev_node.next.next
+
+            return deleted_node
 
     def get(self, key):
         """
@@ -104,7 +149,19 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        slot = self.hash_index(key)
 
+        if self.storage[slot] is None:
+            print("key not found")
+            return None
+        # otherwise get the current value
+        current_bucket = self.storage[slot]
+        while current_bucket is not None:
+            if current_bucket.key == key:
+                return current_bucket.value
+            # handle collisons here
+            else:
+            raise KeyError('does not exist')
 
     def resize(self, new_capacity):
         """
@@ -114,7 +171,10 @@ class HashTable:
         Implement this.
         """
         # Your code here
-
+        # the new storage is gotten by increasing the size by 2
+        if self.get_load_factor() > 0.7 or self.get_load_factor() < 0.3:
+            new_storage = HashTable(self.capacity * 2)
+    # copy contents of the old table into the new one
 
 
 if __name__ == "__main__":
