@@ -8,10 +8,8 @@ class HashTableEntry:
         self.value = value
         self.next = None
 
-
 # Hash table can't have fewer than this many slots
 MIN_CAPACITY = 8
-
 
 class HashTable:
     """
@@ -21,12 +19,12 @@ class HashTable:
     Implement this.
     """
 
-    def __init__(self, capacity):
+    def __init__(self, capacity = MIN_CAPACITY):
         # Your code here
-        # if capacity >= MIN_CAPACITY:
-        #     # then initialize an empty list with None values
-        self.capacity = capacity
-        self.storage = [None] * capacity
+        self.size = int(capacity)
+        self.storage = [None] * max(capacity, MIN_CAPACITY)
+        self.full_slots = 0
+        self.resizing = false
 
     def get_num_slots(self):
         """
@@ -48,6 +46,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        return self.full_slots % self.size
 
     def fnv1(self, key):
         """
@@ -78,52 +77,68 @@ class HashTable:
         # returns the hash value for a key
         # return self.fnv1(key) % self.capacity
         # takes in a key which is also a string
-        return self.djb2(key) % self.get_num_slots()
+        h = self.djb2(key)
+        return h % self.get_num_slots()
 
     def put(self, key, value):
         """
         Store the value with the given key.
-
         Hash collisions should be handled with Linked List Chaining.
-
         Implement this.
         """
         # Your code here
         # convert the key to an integer/hash value
         # check if the index is taken
         # if yes, create a linkedlist to store the key as a pair
-        slot = self.hash_index(key)
-        if not self.storage[slot]:
-            self.storage[slot] = HashTableEntry(key, value)
+        key_index = self.hash_index(key)
+        print(key, value, key_index)
+        new_node = HashTableEntry(key, value)
+        current_node = self.storage[key_index]
+        if current_node is None: # which means that the slot is empty right?
         # store the value with its given key
+           self.storage[key_index] = new_node
+           self.full_slots += 1
         else:
-            current_bucket = self.storage[slot]
-            while current_bucket:
-                if current_bucket.key == key:
-                    current_bucket.value = value
-                    break
-                elif current_bucket.next:
-                    current_bucket = current_bucket.next
-                else:
-                    break
-            current_bucket.next = HashTableEntry(key, value)
+            while current_node.next is not None and current_node.key is not key:
+                current_node = current_node.next
+            if current_node.key == key:
+                current_node.value = value
+            else:
+                current_node.next = new_node
 
     def delete(self, key):
         """
         Remove the value stored with the given key.
-
         Print a warning if the key is not found.
-
         Implement this.
         """
         # Your code here
         # obtain the hash value
-        slot = self.hash_index(key)
-        if self.capacity[slot] is None:
-            print("key not found")
-            return
+        key_index = self.hash_index(key)
+        current_node = self.storage[key_index]
         # otherwise proceed with the deletion
-        self.capacity[slot] == None
+
+        prev_node = None
+        while current_node is not None and current_node.key is not key:
+            # continue going forward
+            prev_node = current_node
+            current_node = current_node.next
+
+        if current_node is None:
+            print("key not found")
+            return None
+        else:
+            deleted_node = current_node.value
+            # if the key is the only node in the list
+            if prev_node is None:
+                self.storage[key_index] = current_node.next
+                if current_node.next is None:
+                    
+            # 1 => 2 => 3 
+            # currently pointing to node 2, we want it to point to node 3
+            else: prev_node.next = prev_node.next.next
+
+            return deleted_node
 
     def get(self, key):
         """
@@ -134,22 +149,19 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        # get the index of the particular key
-        selected_key = self.hash_index(key)
+        slot = self.hash_index(key)
 
-        if not self.storage[selected_key]:
+        if self.storage[slot] is None:
+            print("key not found")
             return None
         # otherwise get the current value
-        while self.storage[selected_key] is not None:
-            if self.storage[selected_key].key == key:
-                return self.storage[selected_key].value
-            # go to the next index by increasing it by 1
-            elif self.storage[selected_key].next != None:
-                self.storage[selected_key] = self.storage[selected_key].next
+        current_bucket = self.storage[slot]
+        while current_bucket is not None:
+            if current_bucket.key == key:
+                return current_bucket.value
+            # handle collisons here
             else:
-                return None
-
-        return None
+            raise KeyError('does not exist')
 
     def resize(self, new_capacity):
         """
@@ -160,7 +172,9 @@ class HashTable:
         """
         # Your code here
         # the new storage is gotten by increasing the size by 2
-        new_storage = HashTable(self.capacity * 2)
+        if self.get_load_factor() > 0.7 or self.get_load_factor() < 0.3:
+            new_storage = HashTable(self.capacity * 2)
+    # copy contents of the old table into the new one
 
 
 if __name__ == "__main__":
